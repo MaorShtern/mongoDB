@@ -1,0 +1,602 @@
+
+//--------------------------------------
+//----------------  סעיף 1 -------------
+//--------------------------------------
+//ניהול מערך החדרים בבית המלון.
+//מעקב שוטף על מצב החדרים בכול זמן נתון.
+//מעקב הזמנות. 
+
+//המערכת קיימת על מנת לבצע מעקב אחרי ההזמנות ולקבוע באילו תאריכים יש את מספר ההזמנות הגבוה ביות כדי שהמלון יוכל להתכונן בהתאם.
+
+
+//--------------------------------------
+//----------------  סעיף 2 -------------
+//----------------  סעיף 3 -------------
+//--------------------------------------
+db.dropDatabase()
+use LHOTELRooms
+
+
+db.createCollection("Rooms")
+db.createCollection("AvailableRooms")
+db.createCollection("ReservedRooms")
+db.createCollection("OccupiedRooms")
+db.createCollection("Product_Storage")
+
+
+db.Product_Storage.insertMany(
+[
+	{
+		_id: 1,
+		Product_Name: "Wine",
+		Amount: 100
+	},
+	{
+		_id: 2,
+		Product_Name: "Whiskey",
+		Amount: 200
+	},
+	{
+		_id: 3,
+		Product_Name: "Chocolate_bar",
+		Amount: 150
+	},
+	{
+		_id: 4,
+		Product_Name: "Water_bottles",
+		Amount: 300
+	},
+	{
+		_id: 5,
+		Product_Name: "Vodka",
+		Amount: 158
+	},
+	{
+		_id: 6,
+		Product_Name: "Jine",
+		Amount: 120
+	}
+])
+
+
+db.Rooms.insertMany(
+[
+	{
+		_id: 1,
+		floor: 1,
+		type: "Single room",
+		price_per_night: 150,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:10,
+			Water_bottles: 3,
+			Alcohol: [
+				{Product_Name: "Wine", Amount:2},
+				{Product_Name: "Whiskey", Amount:1}
+			]
+		}
+	},
+	{
+		_id: 2,
+		floor: 1,
+		type: "Single room",
+		price_per_night: 150,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:10,
+			Water_bottles: 3,
+			Alcohol: [
+				{Product_Name: "Wine", Amount:2},
+				{Product_Name: "Whiskey", Amount:1}
+			]
+		}
+	},
+	{
+		_id: 3,
+		floor: 1,
+		type: "Single room",
+		price_per_night: 150,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:10,
+			Water_bottles: 3,
+			Alcohol: [{Product_Name: "Wine", Amount:2},
+				{Product_Name: "Whiskey", Amount:1}]
+		}
+	},
+	{
+		_id: 4,
+		floor: 1,
+		type: "Single room",
+		price_per_night: 150,
+		clean: false,
+		Mini_bar:{
+			Chocolate_bar:10,
+			Water_bottles: 1,
+			Alcohol: [{Product_Name: "Wine", Amount:2},
+				{Product_Name: "Whiskey", Amount:1}]
+		}
+	},
+	{
+		_id: 5,
+		floor: 1,
+		type: "Single room",
+		price_per_night: 150,
+		clean: false,
+		Mini_bar:{
+			Chocolate_bar:5,
+			Water_bottles: 0,
+			Alcohol: [{Product_Name: "Wine", Amount:0},
+				{Product_Name: "Whiskey", Amount:0}]
+		}
+	},
+	{
+		_id: 6,
+		floor: 2,
+		type: "Double room",
+		price_per_night: 250,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:10,
+			Water_bottles: 1,
+			Coffee_capsules: 5,
+			Alcohol: [{Product_Name: "Wine", Amount:2},
+				{Product_Name: "Whiskey", Amount:1},
+				{Product_Name: "Vodka", Amount:4},
+				{Product_Name: "Jine", Amount:2}]
+		}
+	},
+	{
+		_id: 7,
+		floor: 2,
+		type: "Double room",
+		price_per_night: 250,
+		clean: false,
+		Mini_bar:{
+			Chocolate_bar:9,
+			Water_bottles: 3,
+			Coffee_capsules: 0,
+			Alcohol: [{Product_Name: "Wine", Amount:2},
+				{Product_Name: "Whiskey", Amount:1},
+				{Product_Name: "Vodka", Amount:4},
+				{Product_Name: "Jine", Amount:2}]
+		}
+	},
+	{
+		_id: 8,
+		floor: 2,
+		type: "Double room",
+		price_per_night: 250,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:4,
+			Water_bottles: 0,
+			Coffee_capsules: 5,
+			Alcohol: [{Product_Name: "Wine", Amount:2},
+				{Product_Name: "Whiskey", Amount:1},
+				{Product_Name: "Vodka", Amount:0},
+				{Product_Name: "Jine", Amount:3}]
+		}
+	},
+	{
+		_id: 9,
+		floor: 2,
+		type: "Double room",
+		price_per_night: 250,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:10,
+			Water_bottles: 3,
+			Coffee_capsules: 0,
+			Alcohol: [{Product_Name: "Wine", Amount:2},
+				{Product_Name: "Whiskey", Amount:1},
+				{Product_Name: "Vodka", Amount:4},
+				{Product_Name: "Jine", Amount:3}]
+		}
+	},
+	{
+		_id: 10,
+		floor: 2,
+		type: "Double room",
+		price_per_night: 250,
+		clean: false,
+		Mini_bar:{
+			Chocolate_bar:1,
+			Water_bottles: 0,
+			Coffee_capsules: 0,
+			Alcohol: [{Product_Name: "Wine", Amount:2},
+				{Product_Name: "Whiskey", Amount:0},
+				{Product_Name: "Vodka", Amount:0},
+				{Product_Name: "Jine", Amount:0}]
+		}
+	},
+	{
+		_id: 11,
+		floor: 3,
+		type: "Suite",
+		price_per_night: 300,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:1,
+			Water_bottles: 0,
+			Coffee_capsules: 0,
+			Alcohol: [{Product_Name: "Wine", Amount:2},
+				{Product_Name: "Whiskey", Amount:1},
+				{Product_Name: "Vodka", Amount:4},
+				{Product_Name: "Jine", Amount:2}]
+		},
+		Jacuzzi:'Operate'
+	},
+	{
+		_id: 12,
+		floor: 3,
+		type: "Suite",
+		price_per_night: 300,
+		clean: false,
+		Mini_bar:{
+			Chocolate_bar:1,
+			Water_bottles: 0,
+			Coffee_capsules: 0,
+			Alcohol: [{Product_Name: "Wine", Amount:2},
+				{Product_Name: "Whiskey", Amount:1},
+				{Product_Name: "Vodka", Amount:4},
+				{Product_Name: "Jine", Amount:2}]
+		},
+		Jacuzzi:'Operate'
+	},
+	{
+		_id: 13,
+		floor: 3,
+		type: "Suite",
+		price_per_night: 300,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:1,
+			Water_bottles: 0,
+			Coffee_capsules: 0,
+			Alcohol: [{Product_Name: "Wine", Amount:2},
+				{Product_Name: "Whiskey", Amount:1},
+				{Product_Name: "Vodka", Amount:4},
+				{Product_Name: "Jine", Amount:2}]
+		},
+		Jacuzzi:'Operate'
+	},
+	{
+		_id: 14,
+		floor: 3,
+		type: "Suite",
+		price_per_night: 300,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:1,
+			Water_bottles: 0,
+			Coffee_capsules: 0,
+			Alcohol: [{Product_Name: "Wine", Amount:2},
+				{Product_Name: "Whiskey", Amount:1},
+				{Product_Name: "Vodka", Amount:4},
+				{Product_Name: "Jine", Amount:2}]
+		},
+		Jacuzzi:'Out_of_service'
+	},
+	{
+		_id: 15,
+		floor: 3,
+		type: "Suite",
+		price_per_night: 300,
+		clean: false,
+		Mini_bar:{
+			Chocolate_bar:1,
+			Water_bottles: 0,
+			Coffee_capsules: 0,
+			Alcohol: [{Product_Name: "Wine", Amount:1},
+				{Product_Name: "Whiskey", Amount:0},
+				{Product_Name: "Vodka", Amount:2},
+				{Product_Name: "Jine", Amount:1}]
+		},
+		Jacuzzi:'Out_of_service'
+	}
+])
+
+
+db.AvailableRooms.insertMany([	
+	{
+		_id: 3,
+		floor: 1,
+		type: "Single room",
+		price_per_night: 150,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:10,
+			Water_bottles: 3,
+			Alcohol: [{Product_Name: "Wine", Amount:2},
+				{Product_Name: "Whiskey", Amount:1}]
+		}
+	},
+	{
+		_id: 6,
+		floor: 2,
+		type: "Double room",
+		price_per_night: 250,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:10,
+			Water_bottles: 1,
+			Coffee_capsules: 5,
+			Alcohol: [{Product_Name: "Wine", Amount:1},
+				{Product_Name: "Whiskey", Amount:0},
+				{Product_Name: "Vodka", Amount:2},
+				{Product_Name: "Jine", Amount:1}]
+		}
+	},
+	
+	{
+		_id: 9,
+		floor: 2,
+		type: "Double room",
+		price_per_night: 250,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:10,
+			Water_bottles: 3,
+			Coffee_capsules: 0,
+			Alcohol: [{Product_Name: "Wine", Amount:2},
+				{Product_Name: "Whiskey", Amount:1},
+				{Product_Name: "Vodka", Amount:4},
+				{Product_Name: "Jine", Amount:3}]
+		}
+	},
+	{
+		_id: 11,
+		floor: 3,
+		type: "Suite",
+		price_per_night: 300,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:1,
+			Water_bottles: 0,
+			Coffee_capsules: 0,
+			Alcohol: [{Product_Name: "Wine", Amount:1},
+				{Product_Name: "Whiskey", Amount:0},
+				{Product_Name: "Vodka", Amount:0},
+				{Product_Name: "Jine", Amount:3}]
+		},
+		Jacuzzi:'Operate'
+	}
+	
+])
+
+db.ReservedRooms.insertMany([ 
+	{
+		_id: 1,
+		floor: 1,
+		type: "Single room",
+		price_per_night: 150,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:10,
+			Water_bottles: 3,
+			Alcohol: [{Product_Name: "Wine", Amount:0},
+				{Product_Name: "Whiskey", Amount:2}]
+		},
+		CheckInDate: "20/03/2021",
+		CheckInTime: "12:00",
+		CheckOutDate: "25/03/2021",
+		CheckOutTime: "13:00",
+		Customer_name: "David chaen",
+		Phone_number: "052-5497812"
+	},
+	{
+		_id: 8,
+		floor: 2,
+		type: "Double room",
+		price_per_night: 250,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:4,
+			Water_bottles: 0,
+			Coffee_capsules: 5,
+			Alcohol: [{Product_Name: "Wine", Amount:1},
+				{Product_Name: "Whiskey", Amount:2},
+				{Product_Name: "Vodka", Amount:4},
+				{Product_Name: "Jine", Amount:3}]
+		},
+		CheckInDate: "01/04/2021",
+		CheckInTime: "14:00",
+		CheckOutDate: "06/04/2021",
+		CheckOutTime: "17:00",
+		Customer_name: "Ben Shem",
+		Phone_number: "054-0556423"
+	},
+		{
+		_id: 13,
+		floor: 3,
+		type: "Suite",
+		price_per_night: 300,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:1,
+			Water_bottles: 0,
+			Coffee_capsules: 0,
+			Alcohol: [{Product_Name: "Wine", Amount:1},
+				{Product_Name: "Whiskey", Amount:0},
+				{Product_Name: "Vodka", Amount:0},
+				{Product_Name: "Jine", Amount:3}]
+		},
+		Jacuzzi:'Operate',
+		CheckInDate: "03/06/2021",
+		CheckInTime: "13:00",
+		CheckOutDate: "10/06/2021",
+		CheckOutTime: "19:00",
+		Customer_name: "Eden Haim",
+		Phone_number: "053-0526129"
+	}
+])
+
+db.OccupiedRooms.drop()
+db.OccupiedRooms.insertMany([
+	{
+		_id: 2,
+		floor: 1,
+		type: "Single room",
+		price_per_night: 150,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:10,
+			Water_bottles: 3,
+			Alcohol: [
+				{Product_Name: "Wine", Amount:1},
+				{Product_Name: "Whiskey", Amount:1}]
+		},
+		CheckInDate: "03/06/2021",
+		CheckInTime: "13:00",
+		CheckOutDate: "12/06/2021",
+		CheckOutTime: "19:00",
+		Customer_name: "Avi Ben",
+		Phone_number: "050-5462876"
+	},
+
+{
+		_id: 14,
+		floor: 3,
+		type: "Suite",
+		price_per_night: 300,
+		clean: true,
+		Mini_bar:{
+			Chocolate_bar:1,
+			Water_bottles: 0,
+			Coffee_capsules: 0,
+			Alcohol: [{Product_Name: "Wine", Amount:1},
+				{Product_Name: "Whiskey", Amount:0},
+				{Product_Name: "Vodka", Amount:0},
+				{Product_Name: "Jine", Amount:3}]
+		},
+		Jacuzzi:'Operate',
+		CheckInDate: "03/06/2021",
+		CheckInTime: "13:00",
+		CheckOutDate: "10/06/2021",
+		CheckOutTime: "19:00",
+		Customer_name: "Yuni Mani",
+		Phone_number: "053-9452318"
+	}
+	
+])
+
+//--------------------------------------
+//----------------  סעיף 4 -------------
+//   לחזור להוסיף לפחות פקודה אחת של רפרנס
+//--------------------------------------
+
+//  מציאת החדרים חסר להם מוצרים אין בהם מוצרים מסויימים במיני בר
+db.AvailableRooms.find({"Mini_bar.Alcohol.Amount": { $lte: 0 }}).pretty()
+
+//  מציג רק את 2 הרשומות הראשונות ברשומת החדרים
+db.Rooms.find().limit(2).pretty()
+
+// מציאת כול הרשומות שהת.ז שלהן גדול שווה ל-3 ומדלגים על ה-2 הראשונות
+db.Product_Storage.find({_id:{$gte:3}}).skip(2).pretty()
+
+//  כמה חדרים תפוסים יש במלון
+db.OccupiedRooms.find().count()
+
+// מציג את הרשמות של מחסן המוצרים על פי שם המוצרים בסדר עולה
+db.Product_Storage.find().sort({Product_Name: 1})
+
+//  הפקודה מחזירה את הרשומה כמערך ושומרת אותו בתוך משתנה
+var arrayProd = db.Product_Storage.find().toArray()
+arrayProd
+
+
+//  מדפיסים את שמות הלקוחות שהזמינו חדר
+db.ReservedRooms.find().forEach( 
+	function(room){
+		printjson( "Customer Name: " + room.Customer_name ) ;
+		} );
+		
+		
+		
+//--------------------------------------
+//----------------  סעיף 5 -------------
+//--------------------------------------
+
+//  שכפול האוסף של חדרים שמורים
+db.ReservedRooms.find().forEach(function (doc){db.ReservedRooms_BackUp.insert(doc)})
+
+
+//  מילואי בקבוקי המים ל-5 בקבוקים בכול החדרים הפנויים
+db.AvailableRooms.updateMany({"Mini_bar.Water_bottles":{$lte:5}},{$set:{"Mini_bar.Water_bottles":5}})
+
+
+// ניקוי חדר לפי מספר החדר
+db.Rooms.update({_id:5,"clean":false},{$set:{"clean":true}})
+
+
+//   יצירת אוסף של חדרים שבהם הגקוזי אינו תקין
+db.Rooms.find({"Jacuzzi":'Out_of_service'}).forEach(function(p) { db.Rooms_with_Broke_Jacuzzi.insert(p)})
+
+
+//  מחיקה מהאוסף חדר שהגקוזי שלו תוקן
+db.Rooms_with_Broke_Jacuzzi.remove({"Jacuzzi":'Operate'})
+
+
+//  מחיקת האיבר האחרון במערך האלכוהול של המיני בר
+db.Rooms_with_Broke_Jacuzzi.updateOne({_id:14},{$pop:{"Mini_bar.Alcohol":1}})
+
+
+// מחיקת יצירת אוסף של חדרים שבהם הגקוזי אינו תקין
+db.Rooms_with_Broke_Jacuzzi.drop()
+
+
+//  הוספת מוצר למערך האלכוהול של המיניבר
+db.Rooms_with_Broke_Jacuzzi.update({_id:14},{$addToSet:{"Mini_bar.Alcohol":{Product_Name: "Jine", Amount:2} }})
+
+
+// הוספת בקבוקי מים לחדר - למרות שכבר יש שם מים
+db.Rooms_with_Broke_Jacuzzi.update({_id:14},{$push:{"Water_bottles":100}})
+
+
+//  הוספת 5 חטיפי שוקולד לכול חדר שמור שישי בו 4 חטיפי שוקולד או יותר
+db.ReservedRooms.updateMany({"Mini_bar.Chocolate_bar":{$gte:4}},{$inc:{"Mini_bar.Chocolate_bar":5}})
+
+
+//  שינוי שם אוסף הגיבוי של החדרים השמורים
+db.ReservedRooms_BackUp.renameCollection("ReservedRooms_BackUp_2022")
+
+
+//  הוצאת היין מחדר שמור מספר 2
+db.OccupiedRooms.update({_id:2},{$pull:{"Mini_bar.Alcohol":{"Product_Name":"Wine"}}})
+
+
+
+//--------------------------------------
+//----------------  סעיף 6 -------------
+//--------------------------------------
+
+
+//  מחזיר כמה מהמוצר נימצא במחסן - חטיף שוקולד
+//  לא עובד
+db.Rooms.aggregate([
+	{
+		$lookup:{
+			from:"Product_Storage",
+			localField:"Mini_bar.Chocolate_bar",
+			foreignField:"Amount",
+			as:"Product_Amount"
+		}
+}]).pretty()
+
+db.Product_Storage.find({"Product_Name":"Chocolate_bar"}).pretty()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
