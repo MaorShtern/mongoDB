@@ -432,7 +432,7 @@ db.ReservedRooms.insertMany([
 	}
 ])
 
-db.OccupiedRooms.drop()
+
 db.OccupiedRooms.insertMany([
 	{
 		_id: 2,
@@ -462,7 +462,7 @@ db.OccupiedRooms.insertMany([
 		price_per_night: 300,
 		clean: true,
 		Mini_bar:{
-			Chocolate_bar:1,
+			Chocolate_bar: 1,
 			Water_bottles: 0,
 			Coffee_capsules: 0,
 			Alcohol: [{Product_Name: "Wine", Amount:1},
@@ -572,22 +572,75 @@ db.OccupiedRooms.update({_id:2},{$pull:{"Mini_bar.Alcohol":{"Product_Name":"Wine
 //--------------------------------------
 
 
-//  מחזיר כמה מהמוצר נימצא במחסן - חטיף שוקולד
-//  לא עובד
+//  מביא את כול החדרים שתריך לנקות  
 db.Rooms.aggregate([
 	{
+		$match:{ "clean": false}
+	},
+	{
+		$group:{ _id: "$_id"} 
+	},
+	{
+		$sort:{ _id : 1}
+	}
+]).pretty()
+
+
+
+// Yuni Mani מחפשים חדר תפוס שבו השם של הלקוח הוא 
+db.OccupiedRooms.aggregate([ 
+	{ 
+		$project : { CheckInDate : 1 , CheckOutDate : 1,Customer_name:1 }
+	},
+	{
+		$match : {Customer_name: "Yuni Mani"}
+	}
+])
+
+
+
+//   מוצרי אלכוהל מיני בר בכול חדר יכול להכיל
+db.AvailableRooms.aggregate([ 
+	{ 
+		$project : { Mini_bar:1 }
+	},
+	{ 
+		$unwind : "$Mini_bar.Alcohol"
+	},
+	{
+		$group: { _id: '$_id' , 'Count': {$sum: 1}}
+	}
+]).pretty()
+
+
+
+//  אוסף את כול הלקוחות מהזמנות החדרים ושומר אות במאגר אחר
+db.ReservedRooms.aggregate([
+	{ 
+		$project : { Customer_name:1 , _id: "$Phone_number" }
+	},
+	{
+		$out: "Customers_Names"
+	}
+])
+db.Customers_Names.find().pretty()
+
+
+
+//  מוצא לנו את כול הלקחות הקיימים במאגר הלקוחות שהזמינו חדר
+db.ReservedRooms.aggregate([
+	{
 		$lookup:{
-			from:"Product_Storage",
-			localField:"Mini_bar.Chocolate_bar",
-			foreignField:"Amount",
-			as:"Product_Amount"
-		}
-}]).pretty()
-
-db.Product_Storage.find({"Product_Name":"Chocolate_bar"}).pretty()
-
+			from: "Customers_Names",
+			localField: "Customer_name",
+			foreignField: "Customer_name",
+			as: "Customers" 
+		}		
+	}
+]).pretty()
 
 
+db.Product_Storage.find().pretty()
 
 
 
@@ -595,6 +648,8 @@ db.Product_Storage.find({"Product_Name":"Chocolate_bar"}).pretty()
 //--------------------------------------
 //----------------  סעיף 7 -------------
 //--------------------------------------
+
+
 
 
 
