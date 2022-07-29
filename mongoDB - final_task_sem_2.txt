@@ -29,32 +29,44 @@ db.Product_Storage.insertMany(
 	{
 		_id: 1,
 		Product_Name: "Wine",
-		Amount: 100
+		Category: "Alcohol",
+		Amount: 100,
+		Price_Per_Unit: 35
 	},
 	{
 		_id: 2,
 		Product_Name: "Whiskey",
-		Amount: 200
+		Category: "Alcohol",
+		Amount: 200,
+		Price_Per_Unit: 50
 	},
 	{
 		_id: 3,
 		Product_Name: "Chocolate_bar",
-		Amount: 150
+		Category: "Sweet",
+		Amount: 150,
+		Price_Per_Unit: 15
 	},
 	{
 		_id: 4,
 		Product_Name: "Water_bottles",
-		Amount: 300
+		Category: "Beverage",
+		Amount: 300,
+		Price_Per_Unit: 10
 	},
 	{
 		_id: 5,
 		Product_Name: "Vodka",
-		Amount: 158
+		Amount: 158,
+		Category: "Alcohol",
+		Price_Per_Unit: 40
 	},
 	{
 		_id: 6,
 		Product_Name: "Jine",
-		Amount: 120
+		Category: "Alcohol",
+		Amount: 120,
+		Price_Per_Unit: 65
 	}
 ])
 
@@ -650,11 +662,26 @@ db.Product_Storage.find().pretty()
 //--------------------------------------
 
 
+// סופר את כמות המוצרים שיש בכול קטגוריה אשר מופיעה בקוארי
+var Calculation_Products = function(){
+	emit(this.Category, this.Amount)}
 
 
+var ReduceCalculation_Products = function(key, values ){
+	return Array.sum(values);
+}
 
 
+db.Product_Storage.mapReduce(
+	Calculation_Products,
+	ReduceCalculation_Products,
+	{
+		query: {Category: "Sweet"},
+		out: "Calculation_Products_Resultes"
+	}
+)
 
+db.Calculation_Products_Resultes.find().pretty()
 
 
 
